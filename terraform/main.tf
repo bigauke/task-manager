@@ -75,6 +75,23 @@ resource "helm_release" "prometheus" {
     name  = "grafana.service.type"
     value = "ClusterIP"
   }
+
+  set {
+    name  = "grafana.additionalDataSources[0].name"
+    value = "Loki"
+  }
+  set {
+    name  = "grafana.additionalDataSources[0].type"
+    value = "loki"
+  }
+  set {
+    name  = "grafana.additionalDataSources[0].url"
+    value = "http://loki:3100"
+  }
+  set {
+    name  = "grafana.additionalDataSources[0].access"
+    value = "proxy"
+  }
 }
 
 resource "helm_release" "loki" {
