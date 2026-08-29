@@ -2,8 +2,7 @@
 
 Gerenciador de Tarefas (Task Manager) com Next.js 14 e PostgreSQL.
 
-> Esta branch (`main`) contém só a aplicação. Kubernetes, Terraform, CI/CD e
-> observabilidade ficam na branch `dev_aula`, usada na aula.
+> Este repositório contém a aplicação web completa junto com sua infraestrutura em Kubernetes (k3d), automatizada via Terraform e Helm, CI/CD no GitHub Actions e Stack de Observabilidade (Prometheus, Grafana e Loki).
 
 ## Demonstração
 
@@ -134,16 +133,47 @@ docker build -t task-manager .
 docker run -p 3000:3000 task-manager
 ```
 
-## Kubernetes, Terraform, CI/CD e Observabilidade
+## Infraestrutura (Kubernetes, Terraform e Observabilidade)
 
-Não fazem parte desta branch. Veja a branch `dev_aula` deste repositório para
-os manifests Kubernetes, o Terraform (k3d + Helm) e o workflow de CI/CD.
+Este projeto provisiona localmente um cluster Kubernetes com o k3d e utiliza o Terraform (e Helm) para realizar o deploy de toda a aplicação e da stack de observabilidade.
 
-## Branches
+### Tecnologias Utilizadas:
+- **k3d**: Cluster Kubernetes local.
+- **Terraform**: Infraestrutura como código (IaC).
+- **Helm**: Gerenciador de pacotes do Kubernetes (`kube-prometheus-stack` e `loki-stack`).
+- **GitHub Actions**: Pipeline de CI/CD construindo a imagem Docker e enviando ao Docker Hub.
 
-- **main**: só a aplicação (Next.js + API + Docker).
-- **dev_aula**: aplicação + Kubernetes + Terraform + CI/CD + observabilidade
-  (usada na aula).
+### Como Executar (Terraform)
+
+1. Certifique-se de ter o `k3d`, `kubectl` e `terraform` instalados.
+2. Acesse o diretório do Terraform:
+   ```bash
+   cd terraform
+   ```
+3. Inicie e aplique a infraestrutura:
+   ```bash
+   terraform init
+   terraform apply -auto-approve
+   ```
+Isso criará o cluster k3d, os namespaces, instalará a observabilidade (Prometheus, Grafana, Loki) e fará o deploy da aplicação Task Manager e do banco PostgreSQL.
+
+### Acessando a Observabilidade (Grafana)
+
+Após o `terraform apply` concluir, a aplicação e os dashboards estarão no ar.
+
+1. Faça o Port-Forward do Grafana para a sua máquina:
+   ```bash
+   kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
+   ```
+2. Abra o navegador em: **http://localhost:3000**
+3. **Usuário:** `admin`
+4. **Senha:** _Verifique a secret gerada pelo Helm com o comando abaixo:_
+   ```bash
+   kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}"
+   ```
+   *(E decodifique de base64, ou utilize a senha gerada aleatoriamente durante o apply).*
+
+Lá você encontrará o dashboard pré-configurado **"Task Manager - Observability"**, exibindo consumo de recursos da aplicação e logs do Loki.
 
 ## Licença
 
