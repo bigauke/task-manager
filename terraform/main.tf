@@ -70,6 +70,7 @@ resource "helm_release" "prometheus" {
   namespace  = "monitoring"
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
+  timeout    = 900
   
   set {
     name  = "grafana.service.type"
@@ -117,6 +118,7 @@ resource "helm_release" "loki" {
 
 resource "kubernetes_deployment" "task_manager" {
   depends_on = [kubernetes_namespace.app]
+  wait_for_rollout = false
 
   metadata {
     name      = "task-manager"
