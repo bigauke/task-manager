@@ -71,6 +71,7 @@ resource "helm_release" "prometheus" {
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
   timeout    = 900
+  wait       = false
   
   set {
     name  = "grafana.service.type"
@@ -101,6 +102,7 @@ resource "helm_release" "loki" {
   namespace  = "monitoring"
   repository = "https://grafana.github.io/helm-charts"
   chart      = "loki-stack"
+  wait       = false
 
   set {
     name  = "grafana.enabled"
